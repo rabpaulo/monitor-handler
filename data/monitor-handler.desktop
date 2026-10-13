@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Monitor Handler
+GenericName=Configuração de monitores
+Comment=Resolução, posição, orientação, Hz, VRR e HDR dos monitores
+Exec=monitor-handler
+Icon=video-display
+Terminal=false
+Categories=Settings;HardwareSettings;GTK;
+Keywords=monitor;display;screen;resolution;xrandr;wayland;hdr;vrr;

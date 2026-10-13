@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "monitor-handler"
+dynamic = ["version"]
+description = "Interface gráfica simples para configurar monitores no Linux (X11 e Wayland): resolução, posição, orientação, Hz, VRR e HDR."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "rabpaulo" }]
+dependencies = ["PyGObject>=3.42"]
+keywords = ["monitor", "display", "xrandr", "wayland", "gtk4", "hdr", "vrr"]
+classifiers = [
+  "Environment :: X11 Applications :: GTK",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Desktop Environment",
+]
+
+[project.urls]
+Homepage = "https://github.com/rabpaulo/monitor-handler"
+
+[project.scripts]
+monitor-handler = "monitor_handler.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "monitor_handler.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["monitor_handler*"]

@@ -1,0 +1,13 @@
+{"outputs": [
+  {"id": 1, "name": "DP-2", "enabled": true, "connected": true, "priority": 1, "pos": {"x": 0, "y": 0},
+   "size": {"width": 2560, "height": 1440}, "scale": 1.25, "rotation": 1, "currentModeId": "2",
+   "modes": [{"id": "1", "name": "2560x1440@60", "refreshRate": 59.95, "size": {"width": 2560, "height": 1440}},
+             {"id": "2", "name": "2560x1440@165", "refreshRate": 165.0, "size": {"width": 2560, "height": 1440}}],
+   "preferredModes": ["1"], "vrrPolicy": 2, "capabilities": 31, "hdr": true, "wcg": true, "rgbRange": 1,
+   "type": "DisplayPort"},
+  {"id": 2, "name": "HDMI-A-1", "enabled": true, "connected": true, "priority": 2, "pos": {"x": 2048, "y": 0},
+   "size": {"width": 1920, "height": 1080}, "scale": 1, "rotation": 8, "currentModeId": "5",
+   "modes": [{"id": "5", "name": "1920x1080@60", "refreshRate": 60.0, "size": {"width": 1920, "height": 1080}}],
+   "preferredModes": ["5"], "vrrPolicy": 0, "capabilities": 0, "hdr": false},
+  {"id": 3, "name": "DP-3", "enabled": false, "connected": false, "modes": []}
+]}

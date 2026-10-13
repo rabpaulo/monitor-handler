@@ -1,0 +1,10 @@
+[
+  {"name": "DP-1", "description": "Dell Inc. DELL U2720Q ABC123 (DP-1)", "make": "Dell Inc.", "model": "DELL U2720Q",
+   "serial": "ABC123", "physical_size": {"width": 600, "height": 340}, "enabled": true,
+   "modes": [{"width": 3840, "height": 2160, "refresh": 60.0, "preferred": true, "current": true},
+             {"width": 2560, "height": 1440, "refresh": 59.951, "preferred": false, "current": false}],
+   "position": {"x": 0, "y": 0}, "transform": "normal", "scale": 1.5, "adaptive_sync": false},
+  {"name": "HDMI-A-1", "description": "LG", "make": "LG", "model": "27GL850", "enabled": false,
+   "modes": [{"width": 1920, "height": 1080, "refresh": 144.0, "preferred": true, "current": false}],
+   "position": {"x": 0, "y": 0}, "transform": "90", "scale": 1.0, "adaptive_sync": true}
+]
