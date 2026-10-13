@@ -57,6 +57,16 @@ class XrandrTest(unittest.TestCase):
         self.assertIn("--same-as DP-2", " ".join(xrandr.build_command([dp, hd])))
 
 
+    def test_portable_command_from_other_backend(self):
+        outs = by_name(kscreen.parse_json((FIX / "kscreen.json").read_text()))
+        cmd = xrandr.build_command(list(outs.values()), driver_props=False)
+        self.assertEqual(cmd[:12], ["xrandr", "--output", "DP-2", "--mode", "2560x1440", "--rate", "165.00",
+                                    "--pos", "0x0", "--rotate", "normal", "--primary"])
+        self.assertNotIn("--set", cmd)
+        self.assertNotIn("--brightness", cmd)
+        self.assertIn("right", cmd)
+
+
 class WlrRandrTest(unittest.TestCase):
     def test_parse_and_command(self):
         outs = by_name(wlr_randr.parse_json((FIX / "wlr_randr.json").read_text()))

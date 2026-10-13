@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import shlex
 import sys
 
 from . import __version__
-from .backends import BACKENDS, BackendError, detect
+from .backends import BACKENDS, BackendError, detect, xrandr
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -20,12 +21,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--list", action="store_true", help="lista os monitores detectados e sai")
     parser.add_argument("--print-commands", action="store_true",
                         help="mostra o comando que reproduz a configuração atual e sai")
+    parser.add_argument("--xrandr", action="store_true",
+                        help="mostra o comando xrandr equivalente à configuração atual e sai")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args(argv)
 
     try:
         backend = detect(args.backend)
-        if args.list or args.print_commands:
+        if args.list or args.print_commands or args.xrandr:
             outputs = backend.list_outputs()
             if args.list:
                 print(f"Backend: {backend.name}")
@@ -37,6 +40,8 @@ def main(argv: list[str] | None = None) -> int:
                           + (f" [{', '.join(flags)}]" if flags else ""))
             if args.print_commands:
                 print(backend.preview(outputs))
+            if args.xrandr:
+                print(shlex.join(xrandr.build_command(outputs, driver_props=backend.id == "xrandr")))
             return 0
     except BackendError as e:
         print(f"erro: {e}", file=sys.stderr)

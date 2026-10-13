@@ -145,15 +145,18 @@ def parse_brightness(verbose_text: str) -> dict[str, float]:
     return result
 
 
-def build_command(outputs: list[Output]) -> list[str]:
+def build_command(outputs: list[Output], driver_props: bool = True) -> list[str]:
+    """xrandr invocation for `outputs`.
+
+    With driver_props=False (outputs read by another backend) the X11-only
+    properties are left out and brightness is only set when it differs from 100%."""
     cmd = ["xrandr"]
     for o in outputs:
         cmd += ["--output", o.name]
         if not o.enabled:
             cmd.append("--off")
             continue
-        mode = o.find_mode()
-        cmd += ["--mode", mode.id if mode else f"{o.width}x{o.height}"]
+        cmd += ["--mode", f"{o.width}x{o.height}"]
         if o.refresh:
             cmd += ["--rate", f"{o.refresh:.2f}"]
         if o.mirror_of:
@@ -163,7 +166,10 @@ def build_command(outputs: list[Output]) -> list[str]:
         cmd += ["--rotate", ROT_TO_X.get(o.rotation, "normal")]
         if o.primary:
             cmd.append("--primary")
-        cmd += ["--brightness", f"{o.brightness:.2f}"]
+        if driver_props or abs(o.brightness - 1.0) > 0.005:
+            cmd += ["--brightness", f"{o.brightness:.2f}"]
+        if not driver_props:
+            continue
         if o.bit_depth is not None and o.bit_depth_options:
             cmd += ["--set", "max bpc", str(o.bit_depth)]
         if o.rgb_range and o.rgb_range_options:

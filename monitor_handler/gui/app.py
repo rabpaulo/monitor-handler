@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import stat
 from pathlib import Path
 
@@ -10,10 +11,12 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gdk, Gio, GLib, Gtk  # noqa: E402
+gi.require_version("Pango", "1.0")
+from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # noqa: E402
 
 from .. import __version__, layout  # noqa: E402
 from ..backends import Backend, BackendError  # noqa: E402
+from ..backends.xrandr import build_command as xrandr_command  # noqa: E402
 from ..model import (  # noqa: E402
     FEAT_BIT_DEPTH, FEAT_BRIGHTNESS, FEAT_HDR, FEAT_MIRROR, FEAT_PRIMARY, FEAT_RGB_RANGE,
     FEAT_SCALE, FEAT_VRR, ROTATIONS, Output, clone_all,
@@ -128,6 +131,8 @@ class MainWindow(Gtk.ApplicationWindow):
         scroller.set_child(self.grid)
         self._build_controls()
 
+        root.append(self._build_xrandr_box())
+
         self.status = Gtk.Label(xalign=0, wrap=True)
         self.status.add_css_class("error")
         root.append(self.status)
@@ -228,6 +233,60 @@ class MainWindow(Gtk.ApplicationWindow):
         self.brightness.set_hexpand(True)
         self.brightness.connect("value-changed", self._on_brightness)
         self.row_brightness = self._row("Brilho (gamma)", self.brightness, FEAT_BRIGHTNESS)
+
+    def _build_xrandr_box(self) -> Gtk.Widget:
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        head = Gtk.Box(spacing=8)
+        title = Gtk.Label(label="<b>Comando xrandr</b>", use_markup=True, xalign=0)
+        head.append(title)
+        self.xrandr_note = Gtk.Label(xalign=0, hexpand=True, wrap=True)
+        self.xrandr_note.add_css_class("dim-label")
+        head.append(self.xrandr_note)
+        copy = Gtk.Button(tooltip_text="Copia o comando xrandr equivalente à configuração acima")
+        content = Gtk.Box(spacing=6)
+        content.append(Gtk.Image(icon_name="edit-copy-symbolic"))
+        content.append(Gtk.Label(label="Copiar comando"))
+        copy.set_child(content)
+        copy.connect("clicked", lambda *_: self._copy(self.xrandr_text))
+        head.append(copy)
+        box.append(head)
+        self.xrandr_label = Gtk.Label(xalign=0, wrap=True, selectable=True)
+        self.xrandr_label.set_wrap_mode(Pango.WrapMode.CHAR)
+        self.xrandr_label.add_css_class("monospace")
+        frame = Gtk.Frame(child=self.xrandr_label)
+        self.xrandr_label.set_margin_start(8)
+        self.xrandr_label.set_margin_end(8)
+        self.xrandr_label.set_margin_top(6)
+        self.xrandr_label.set_margin_bottom(6)
+        box.append(frame)
+        self.xrandr_text = ""
+        return box
+
+    def _update_xrandr(self):
+        outs = self._final()
+        native = self.backend.id == "xrandr"
+        self.xrandr_text = shlex.join(xrandr_command(outs, driver_props=native))
+        self.xrandr_label.set_label(self.xrandr_text)
+        notes = []
+        if not native:
+            notes.append("só funciona numa sessão X11")
+            if any(o.enabled and abs(o.scale - 1.0) > 0.005 for o in outs):
+                notes.append("escala não se aplica no X11; as posições usam o tamanho escalado")
+        self.xrandr_note.set_label(" · ".join(notes))
+
+    def _copy(self, text: str):
+        Gdk.Display.get_default().get_clipboard().set(text)
+        self._toast("Comando copiado para a área de transferência")
+
+    def _toast(self, text: str):
+        self.status.remove_css_class("error")
+        self.status.set_label(text)
+        GLib.timeout_add_seconds(3, self._clear_toast)
+
+    def _clear_toast(self):
+        self.status.add_css_class("error")
+        self._validate()
+        return False
 
     def _show_row(self, row: tuple, visible: bool):
         for w in row:
@@ -354,6 +413,7 @@ class MainWindow(Gtk.ApplicationWindow):
         problems = layout.validate(self.outputs)
         self.status.set_label("\n".join(problems))
         self.apply_btn.set_sensitive(not problems)
+        self._update_xrandr()
 
     def _changed(self, keep_selection_ui=False):
         self.canvas.set_outputs(self.outputs, self.selected)
@@ -500,16 +560,19 @@ class MainWindow(Gtk.ApplicationWindow):
         o = self._cur()
         if not self._loading and o:
             o.bit_depth = value
+            self._update_xrandr()
 
     def _on_rgb(self, value):
         o = self._cur()
         if not self._loading and o and value:
             o.rgb_range = value
+            self._update_xrandr()
 
     def _on_brightness(self, scale):
         o = self._cur()
         if not self._loading and o:
             o.brightness = round(scale.get_value(), 2)
+            self._update_xrandr()
 
     # ---- actions -------------------------------------------------------
     def _final(self) -> list[Output]:
@@ -584,7 +647,7 @@ class MainWindow(Gtk.ApplicationWindow):
         box.append(sw)
         btns = Gtk.Box(spacing=8, halign=Gtk.Align.END)
         copy = Gtk.Button(label="Copiar")
-        copy.connect("clicked", lambda *_: Gdk.Display.get_default().get_clipboard().set(text))
+        copy.connect("clicked", lambda *_: self._copy(text))
         close = Gtk.Button(label="Fechar")
         close.connect("clicked", lambda *_: win.close())
         btns.append(copy)

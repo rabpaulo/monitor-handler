@@ -67,6 +67,8 @@ class GuiTest(unittest.TestCase):
         self.assertEqual((dp.x, dp.y), (0, 1920))
         cmd = w.backend.preview(w._final())
         self.assertIn("--output HDMI-1 --mode 1920x1080 --rate 60.00 --pos 740x0 --rotate right", cmd)
+        self.assertEqual(w.xrandr_text, cmd)
+        self.assertEqual(w.xrandr_label.get_label(), cmd)
 
     def test_primary_and_resolution(self):
         w = self.win
@@ -81,6 +83,9 @@ class GuiTest(unittest.TestCase):
         self.assertEqual(hd.x, 1920)  # neighbour kept attached
         self.pick(w.c_rate, 59.93)
         self.assertEqual(dp.refresh, 59.93)
+        self.assertIn("--mode 1920x1080 --rate 59.93", w.xrandr_text)
+        w.brightness.set_value(0.7)
+        self.assertIn("--brightness 0.70", w.xrandr_text)
 
     def test_disable_and_reset(self):
         w = self.win
