@@ -1,0 +1,11 @@
+[
+  {"name": "DP-1", "make": "Dell Inc.", "model": "DELL U2720Q", "serial": "x", "active": true, "primary": false,
+   "scale": 2.0, "transform": "normal", "rect": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+   "modes": [{"width": 3840, "height": 2160, "refresh": 60000}, {"width": 1920, "height": 1080, "refresh": 60000}],
+   "current_mode": {"width": 3840, "height": 2160, "refresh": 60000},
+   "adaptive_sync_status": "disabled", "hdr": false},
+  {"name": "HDMI-A-1", "make": "LG", "model": "27GL850", "active": true, "scale": 1.0, "transform": "270",
+   "rect": {"x": 1920, "y": 0, "width": 1080, "height": 1920},
+   "modes": [{"width": 1920, "height": 1080, "refresh": 144001}],
+   "current_mode": {"width": 1920, "height": 1080, "refresh": 144001}, "adaptive_sync_status": "enabled"}
+]

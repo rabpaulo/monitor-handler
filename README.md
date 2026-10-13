@@ -11,6 +11,7 @@ GUI simples (GTK 4) para configurar monitores no Linux, tanto no **X11** quanto 
 - VRR / FreeSync / G-Sync, HDR, profundidade de cor, faixa RGB e brilho — quando o backend suporta
 - Confirmação com reversão automática em 15 s, para não ficar com a tela preta
 - "Salvar para o login": gera o script/trecho de configuração para manter as alterações
+- **Comando xrandr pronto para copiar**: a janela mostra, ao vivo, o comando `xrandr` equivalente à configuração e tem um botão *Copiar comando* — útil para colar no `~/.xinitrc` ou num script
 
 ## Suporte
 
@@ -68,6 +69,7 @@ monitor-handler                 # abre a GUI
 monitor-handler --dry-run       # GUI em modo simulação: "Aplicar" só mostra os comandos
 monitor-handler --list          # lista os monitores detectados
 monitor-handler --print-commands  # comando que reproduz a configuração atual
+monitor-handler --xrandr          # só o comando xrandr equivalente (para copiar)
 monitor-handler --backend xrandr  # força um backend
 ```
 
